@@ -1,0 +1,204 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ShellWire Public Directory & Builder API",
+    "version": "1.0.0",
+    "description": "Public read endpoints for software discovery, explainable rankings, tool comparisons, and chatbot news on ShellWire, plus first-party email OTP builder endpoints for submitting applications.",
+    "contact": {
+      "name": "ShellWire",
+      "url": "https://shellwire.com/contact",
+      "email": "kennedy@shellwire.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://shellwire.com",
+      "description": "Production ShellWire Server"
+    }
+  ],
+  "paths": {
+    "/api/directory/status": {
+      "get": {
+        "operationId": "getDirectoryStatus",
+        "summary": "Check MCP and directory service status",
+        "responses": {
+          "200": {
+            "description": "Current MCP and listing status"
+          }
+        }
+      }
+    },
+    "/api/directory/tools": {
+      "get": {
+        "operationId": "searchTools",
+        "summary": "Search and filter published software tools",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string", "maxLength": 200 } },
+          { "name": "category", "in": "query", "schema": { "type": "string", "maxLength": 80 } },
+          { "name": "kind", "in": "query", "schema": { "type": "string", "enum": ["app", "agent", "chatbot", "model", "api", "mcp-server", "utility"] } },
+          { "name": "free", "in": "query", "schema": { "type": "string", "enum": ["true", "false"] } },
+          { "name": "capability", "in": "query", "schema": { "type": "string", "enum": ["webSearch", "files", "voice", "images", "api", "local", "openSource", "mcp"] } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 24 } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "minimum": 0, "maximum": 10000, "default": 0 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of published tools with documented facts and evidence"
+          }
+        }
+      }
+    },
+    "/api/directory/tools/{slug}": {
+      "get": {
+        "operationId": "getToolBySlug",
+        "summary": "Get a single published tool by slug",
+        "parameters": [
+          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string", "maxLength": 100 } }
+        ],
+        "responses": {
+          "200": { "description": "Published tool record with dated evidence" },
+          "404": { "description": "Tool not found" }
+        }
+      }
+    },
+    "/api/directory/categories": {
+      "get": {
+        "operationId": "listCategories",
+        "summary": "List directory categories and published tool counts",
+        "responses": {
+          "200": { "description": "Array of categories" }
+        }
+      }
+    },
+    "/api/directory/leaderboard": {
+      "get": {
+        "operationId": "getLeaderboard",
+        "summary": "Get the explainable heuristic software leaderboard",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string", "maxLength": 200 } },
+          { "name": "category", "in": "query", "schema": { "type": "string", "maxLength": 80 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 20 } }
+        ],
+        "responses": {
+          "200": { "description": "Ranked tools with methodology and per-factor point breakdowns" }
+        }
+      }
+    },
+    "/api/directory/compare": {
+      "get": {
+        "operationId": "compareTools",
+        "summary": "Compare up to four published tools side by side",
+        "parameters": [
+          { "name": "ids", "in": "query", "required": true, "description": "Comma-separated list of 1 to 4 tool UUIDs", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Comparison items" }
+        }
+      }
+    },
+    "/api/directory/brief": {
+      "get": {
+        "operationId": "getChatbotBrief",
+        "summary": "Read the homepage source-reviewed chatbot brief",
+        "responses": {
+          "200": { "description": "Up to four labeled stories with related public tools" }
+        }
+      }
+    },
+    "/api/directory/search": {
+      "get": {
+        "operationId": "searchPublicRecords",
+        "summary": "Search public applications and labeled news",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string", "maxLength": 200 } }
+        ],
+        "responses": {
+          "200": { "description": "Up to 24 matching record IDs, titles, and canonical URLs" }
+        }
+      }
+    },
+    "/api/directory/records/{id}": {
+      "get": {
+        "operationId": "getPublicRecord",
+        "summary": "Fetch a single public record by stable ID (tool:<uuid> or news:<uuid>)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^(tool|news):[0-9a-fA-F-]{36}$" } }
+        ],
+        "responses": {
+          "200": { "description": "Citable record text and structured metadata" },
+          "404": { "description": "Record not found" }
+        }
+      }
+    },
+    "/api/directory/account/agent/send-code": {
+      "post": {
+        "operationId": "sendBuilderOtpCode",
+        "summary": "Send a 6-digit email OTP code for builder authentication",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": { "type": "string", "format": "email", "maxLength": 254 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OTP code dispatched" }
+        }
+      }
+    },
+    "/api/directory/account/agent/token": {
+      "post": {
+        "operationId": "exchangeBuilderOtpToken",
+        "summary": "Exchange a 6-digit email OTP code for an 8-hour Bearer token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "code"],
+                "properties": {
+                  "email": { "type": "string", "format": "email", "maxLength": 254 },
+                  "code": { "type": "string", "pattern": "^[0-9]{6}$" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Bearer token response with access_token, token_type, expires_in (28800), and user" }
+        }
+      }
+    },
+    "/api/directory/account/agent/revoke": {
+      "post": {
+        "operationId": "revokeBuilderToken",
+        "summary": "Immediately revoke the active builder Bearer token",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Token revoked" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "8-hour Bearer token obtained from POST /api/directory/account/agent/token"
+      }
+    }
+  }
+}

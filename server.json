@@ -1,0 +1,51 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Kiragu-Maina/shellwire",
+  "title": "ShellWire",
+  "description": "Discover and compare software, read chatbot news, and submit applications for private review.",
+  "version": "1.0.0",
+  "websiteUrl": "https://shellwire.com/connect",
+  "repository": {
+    "url": "https://github.com/Kiragu-Maina/shellwire-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://shellwire.com/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Optional for public reads. Builder operations require Bearer <token> from ShellWire email OTP. See https://shellwire.com/connect. Tokens expire after eight hours. This is not OAuth.",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "com.shellwire": {
+        "documentation": "https://shellwire.com/connect",
+        "homepage": "https://shellwire.com/",
+        "tools": [
+          "search",
+          "fetch",
+          "compare_tools",
+          "get_chatbot_brief",
+          "get_submission_instructions",
+          "verify_homepage_backlink",
+          "submit_application",
+          "list_my_submissions"
+        ],
+        "authentication": {
+          "publicReads": "anonymous",
+          "builderOperations": "email-otp-bearer",
+          "oauth": false,
+          "tokenLifetimeSeconds": 28800
+        },
+        "submissionReview": "Private operator review. Requires a verified email and visible ShellWire backlink on the submitted site root homepage. Builder tokens cannot publish listings."
+      }
+    }
+  }
+}
